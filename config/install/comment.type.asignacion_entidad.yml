@@ -1,0 +1,7 @@
+langcode: es
+status: true
+dependencies: {  }
+id: asignacion_entidad
+label: 'Asignacion entidad'
+target_entity_type_id: node
+description: ''

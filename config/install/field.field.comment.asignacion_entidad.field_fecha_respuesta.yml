@@ -1,0 +1,20 @@
+langcode: es
+status: true
+dependencies:
+  config:
+    - comment.type.asignacion_entidad
+    - field.storage.comment.field_fecha_respuesta
+  module:
+    - datetime
+id: comment.asignacion_entidad.field_fecha_respuesta
+field_name: field_fecha_respuesta
+entity_type: comment
+bundle: asignacion_entidad
+label: 'fecha respuesta'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: datetime

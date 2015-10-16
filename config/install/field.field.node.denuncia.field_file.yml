@@ -1,0 +1,26 @@
+langcode: es
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_file
+    - node.type.denuncia
+  module:
+    - file
+id: node.denuncia.field_file
+field_name: field_file
+entity_type: node
+bundle: denuncia
+label: Archivos
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  file_directory: ''
+  file_extensions: 'txt pdf doc docx xls xlsx avi mp4 mp3 wav csv'
+  max_filesize: ''
+  description_field: true
+  handler: 'default:file'
+  handler_settings: {  }
+field_type: file

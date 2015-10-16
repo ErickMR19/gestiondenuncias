@@ -1,0 +1,20 @@
+langcode: es
+status: true
+dependencies:
+  config:
+    - comment.type.asignacion_entidad
+    - field.storage.comment.comment_body
+  module:
+    - text
+id: comment.asignacion_entidad.comment_body
+field_name: comment_body
+entity_type: comment
+bundle: asignacion_entidad
+label: Comentarios
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: text_long

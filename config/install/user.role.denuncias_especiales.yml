@@ -1,0 +1,10 @@
+langcode: es
+status: true
+dependencies: {  }
+id: denuncias_especiales
+label: 'Denuncias especiales'
+weight: 5
+is_admin: null
+permissions:
+  - 'enviar denuncias comunales'
+  - 'enviar denuncias fisicas'

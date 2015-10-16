@@ -1,0 +1,9 @@
+langcode: es
+status: true
+dependencies: {  }
+id: gestor_denuncias
+label: 'Gestor de Denuncias'
+weight: 3
+is_admin: null
+permissions:
+  - 'manejar denuncias'

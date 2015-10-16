@@ -1,0 +1,20 @@
+langcode: es
+status: true
+dependencies:
+  config:
+    - comment.type.asignacion_entidad
+    - field.storage.comment.field_fecha_esperada
+  module:
+    - datetime
+id: comment.asignacion_entidad.field_fecha_esperada
+field_name: field_fecha_esperada
+entity_type: comment
+bundle: asignacion_entidad
+label: 'fecha esperada'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: datetime

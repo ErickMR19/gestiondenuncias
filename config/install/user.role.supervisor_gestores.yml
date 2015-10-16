@@ -1,0 +1,9 @@
+langcode: es
+status: true
+dependencies: {  }
+id: supervisor_gestores
+label: 'Supervisor de Gestores'
+weight: 4
+is_admin: null
+permissions:
+  - 'administrar supervisores'

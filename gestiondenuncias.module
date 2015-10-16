@@ -1,0 +1,36 @@
+<?php
+
+/**
+ * @file
+ * Contains serviciosweb.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function serviciosweb_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the serviciosweb module.
+    case 'help.page.serviciosweb':
+      $output = '';
+      $output .= '<h3>' . t('Acerca de') . '</h3>';
+      $output .= '<p>' . t('Creado para la apliacion de la Asamblea') . '</p>';
+      $output .= '<p>' . t('Provee un tipo de contenido "Denuncia" y un tipo de comentario "Asignacion entidad"');
+      $output .= t('Además provee una API rest para obtener/crear estos contenidos') . '</p>';
+
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function serviciosweb_theme() {
+  $theme = [];
+
+  return $theme;
+}

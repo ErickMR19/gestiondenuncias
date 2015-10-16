@@ -1,0 +1,31 @@
+manejar denuncias:
+  # (required) Human readable name of the permission used in the UI.
+  title: 'Permite manejar denuncias'
+  # (optional) Additional description fo the permission used in the UI.
+  description: 'Agregar entidades y fechas de respuesta esperada'
+  # (optional) Boolean, when set to true a warning about site security will
+  # be displayed on the Permissions page. Defaults to false.
+  restrict access: false
+
+administrar supervisores:
+  # (required) Human readable name of the permission used in the UI.
+  title: 'Asignar supervisores de denuncias'
+  # (optional) Additional description fo the permission used in the UI.
+  description: 'Permite agregar a las denuncias un usuarios encargado de darle seguimiento'
+  # (optional) Boolean, when set to true a warning about site security will
+  # be displayed on the Permissions page. Defaults to false.
+  restrict access: false
+
+enviar denuncias comunales:
+  # (required) Human readable name of the permission used in the UI.
+  title: 'Permite el envio de denuncias comunales'
+  # (optional) Boolean, when set to true a warning about site security will
+  # be displayed on the Permissions page. Defaults to false.
+  restrict access: false
+
+enviar denuncias fisicas:
+  # (required) Human readable name of the permission used in the UI.
+  title: 'Permite el envio de denuncias físicas'
+  # (optional) Boolean, when set to true a warning about site security will
+  # be displayed on the Permissions page. Defaults to false.
+  restrict access: false
