@@ -1,0 +1,18 @@
+langcode: es
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_denunciante_apellidos
+    - node.type.denuncia
+id: node.denuncia.field_denunciante_apellidos
+field_name: field_denunciante_apellidos
+entity_type: node
+bundle: denuncia
+label: 'Apellidos del denunciante'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

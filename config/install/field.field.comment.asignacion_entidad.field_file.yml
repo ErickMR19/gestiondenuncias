@@ -1,0 +1,26 @@
+langcode: es
+status: true
+dependencies:
+  config:
+    - comment.type.asignacion_entidad
+    - field.storage.comment.field_file
+  module:
+    - file
+id: comment.asignacion_entidad.field_file
+field_name: field_file
+entity_type: comment
+bundle: asignacion_entidad
+label: file
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  file_directory: ''
+  file_extensions: 'txt pdf doc docx png jpeg jpg odt csv xls xlsx'
+  max_filesize: ''
+  description_field: false
+  handler: 'default:file'
+  handler_settings: {  }
+field_type: file

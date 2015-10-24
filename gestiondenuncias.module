@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains serviciosweb.module.
+ * Contains gestiondenuncias.module.
  */
 
 use Drupal\Core\Routing\RouteMatchInterface;
@@ -10,7 +10,7 @@ use Drupal\Core\Routing\RouteMatchInterface;
 /**
  * Implements hook_help().
  */
-function serviciosweb_help($route_name, RouteMatchInterface $route_match) {
+function gestiondenuncias_help($route_name, RouteMatchInterface $route_match) {
   switch ($route_name) {
     // Main module help for the serviciosweb module.
     case 'help.page.serviciosweb':
@@ -29,7 +29,7 @@ function serviciosweb_help($route_name, RouteMatchInterface $route_match) {
 /**
  * Implements hook_theme().
  */
-function serviciosweb_theme() {
+function gestiondenuncias_theme() {
   $theme = [];
 
   return $theme;
