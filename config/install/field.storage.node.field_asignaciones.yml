@@ -4,6 +4,9 @@ dependencies:
   module:
     - comment
     - node
+  enforced:
+    module:
+      - gestiondenuncias
 id: node.field_asignaciones
 field_name: field_asignaciones
 entity_type: node

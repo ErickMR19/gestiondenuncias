@@ -1,8 +1,9 @@
 langcode: es
 status: true
 dependencies:
-  module:
-    - node
+  enforced:
+    module:
+      - gestiondenuncias
 id: node.field_denunciante_apellidos
 field_name: field_denunciante_apellidos
 entity_type: node

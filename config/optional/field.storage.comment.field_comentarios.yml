@@ -3,13 +3,14 @@ status: true
 dependencies:
   module:
     - comment
-id: comment.field_entidad_encargada
-field_name: field_entidad_encargada
+  enforced:
+    module:
+      - gestiondenuncias
+id: comment.field_comentarios
+field_name: field_comentarios
 entity_type: comment
-type: string
+type: string_long
 settings:
-  max_length: 255
-  is_ascii: false
   case_sensitive: false
 module: core
 locked: false

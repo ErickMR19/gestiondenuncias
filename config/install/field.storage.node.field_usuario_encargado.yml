@@ -4,6 +4,9 @@ dependencies:
   module:
     - node
     - user
+  enforced:
+    module:
+      - gestiondenuncias
 id: node.field_usuario_encargado
 field_name: field_usuario_encargado
 entity_type: node

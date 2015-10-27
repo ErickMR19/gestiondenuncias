@@ -3,13 +3,17 @@ status: true
 dependencies:
   module:
     - comment
-id: comment.field_comentarios
-field_name: field_comentarios
+    - datetime
+  enforced:
+    module:
+      - gestiondenuncias
+id: comment.field_fecha_esperada
+field_name: field_fecha_esperada
 entity_type: comment
-type: string_long
+type: datetime
 settings:
-  case_sensitive: false
-module: core
+  datetime_type: date
+module: datetime
 locked: false
 cardinality: 1
 translatable: true

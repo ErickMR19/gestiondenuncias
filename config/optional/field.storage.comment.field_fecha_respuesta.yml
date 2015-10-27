@@ -4,8 +4,11 @@ dependencies:
   module:
     - comment
     - datetime
-id: comment.field_fecha_esperada
-field_name: field_fecha_esperada
+  enforced:
+    module:
+      - gestiondenuncias
+id: comment.field_fecha_respuesta
+field_name: field_fecha_respuesta
 entity_type: comment
 type: datetime
 settings:

@@ -1,6 +1,9 @@
 langcode: es
 status: true
-dependencies: {  }
+dependencies:
+  enforced:
+    module:
+      - gestiondenuncias
 id: gestor_denuncias
 label: 'Gestor de Denuncias'
 weight: 3

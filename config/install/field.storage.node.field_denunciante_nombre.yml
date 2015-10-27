@@ -3,6 +3,9 @@ status: true
 dependencies:
   module:
     - node
+  enforced:
+    module:
+      - gestiondenuncias
 id: node.field_denunciante_nombre
 field_name: field_denunciante_nombre
 entity_type: node

@@ -13,7 +13,7 @@ use Drupal\Core\Routing\RouteMatchInterface;
 function gestiondenuncias_help($route_name, RouteMatchInterface $route_match) {
   switch ($route_name) {
     // Main module help for the serviciosweb module.
-    case 'help.page.serviciosweb':
+    case 'help.page.gestiondenuncias':
       $output = '';
       $output .= '<h3>' . t('Acerca de') . '</h3>';
       $output .= '<p>' . t('Creado para la apliacion de la Asamblea') . '</p>';

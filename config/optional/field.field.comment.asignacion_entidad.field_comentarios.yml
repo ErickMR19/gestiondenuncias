@@ -2,7 +2,6 @@ langcode: es
 status: true
 dependencies:
   config:
-    - comment.type.asignacion_entidad
     - field.storage.comment.field_comentarios
 id: comment.asignacion_entidad.field_comentarios
 field_name: field_comentarios

@@ -1,6 +1,8 @@
 langcode: es
 status: true
-dependencies: {  }
+dependencies:
+  module:
+    - gestiondenuncias
 id: asignacion_entidad
 label: 'Asignacion entidad'
 target_entity_type_id: node

@@ -1,6 +1,9 @@
 langcode: es
 status: true
-dependencies: {  }
+dependencies:
+  enforced:
+    module:
+      - gestiondenuncias
 id: supervisor_gestores
 label: 'Supervisor de Gestores'
 weight: 4

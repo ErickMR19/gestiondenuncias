@@ -1,6 +1,9 @@
 langcode: es
 status: true
-dependencies: {  }
+dependencies:
+  enforced:
+    module:
+      - gestiondenuncias
 id: denuncias_especiales
 label: 'Denuncias especiales'
 weight: 5
