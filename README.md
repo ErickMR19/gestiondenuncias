@@ -20,3 +20,8 @@ Para acceder a las opciones del módulo, este debe activarse desde Drupal.
 ### Desinstalación
 Desde la página de configuración de módulos en drupal debe utilizarse la opción de desintalar.
 Debe además eliminarse manualmente los tipos de contenido y comentario creado, además de los nuevos roles.
+
+_____
+
+## Tema
+Ya se está trabajando en el tema para drupal [Ir al repositorio](https://github.com/ErickMR19/denunciasasamblea)
