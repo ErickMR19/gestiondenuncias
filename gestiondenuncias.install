@@ -1,0 +1,33 @@
+<?php
+
+use Drupal\taxonomy\Entity\Term;
+
+
+function gestiondenuncias_install(){
+    Term::create(
+        [
+            'name' => 'Anónima',
+            'vid' => 'tipos_denuncia',
+        ]
+    )->save();
+    Term::create(
+        [
+            'name' => 'Personal',
+            'vid' => 'tipos_denuncia',
+        ]
+    )->save();
+    Term::create(
+        [
+            'name' => 'Física',
+            'vid' => 'tipos_denuncia',
+        ]
+    )->save();
+    Term::create(
+        [
+            'name' => 'Comunal',
+            'vid' => 'tipos_denuncia',
+        ]
+    )->save();
+    \Drupal::logger('gestiondenuncias')->notice("Agregadas los tipos de denuncia");
+
+}

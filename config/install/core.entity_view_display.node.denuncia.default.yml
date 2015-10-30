@@ -1,0 +1,66 @@
+langcode: es
+status: true
+dependencies:
+  config:
+    - field.field.node.denuncia.field_asignaciones
+    - field.field.node.denuncia.field_denuncia_archivada
+    - field.field.node.denuncia.field_denunciante_apellidos
+    - field.field.node.denuncia.field_denunciante_email
+    - field.field.node.denuncia.field_denunciante_nombre
+    - field.field.node.denuncia.field_descripcion
+    - field.field.node.denuncia.field_file
+    - field.field.node.denuncia.field_image
+    - field.field.node.denuncia.field_tipo_denuncia
+    - field.field.node.denuncia.field_usuario_encargado
+    - node.type.denuncia
+  module:
+    - image
+    - user
+id: node.denuncia.default
+targetEntityType: node
+bundle: denuncia
+mode: default
+content:
+  field_denunciante_apellidos:
+    type: string
+    weight: 3
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+  field_denunciante_nombre:
+    type: string
+    weight: 2
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+  field_descripcion:
+    type: basic_string
+    weight: 1
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+  field_image:
+    type: image
+    weight: 4
+    label: above
+    settings:
+      image_style: ''
+      image_link: ''
+    third_party_settings: {  }
+  field_tipo_denuncia:
+    weight: 0
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    type: entity_reference_label
+hidden:
+  field_asignaciones: true
+  field_denuncia_archivada: true
+  field_denunciante_email: true
+  field_file: true
+  field_usuario_encargado: true
+  langcode: true
+  links: true

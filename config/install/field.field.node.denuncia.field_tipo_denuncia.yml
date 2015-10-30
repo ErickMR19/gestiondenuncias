@@ -1,0 +1,26 @@
+langcode: es
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_tipo_denuncia
+    - node.type.denuncia
+    - taxonomy.vocabulary.tipos_denuncia
+id: node.denuncia.field_tipo_denuncia
+field_name: field_tipo_denuncia
+entity_type: node
+bundle: denuncia
+label: tipo_denuncia
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      tipos_denuncia: tipos_denuncia
+    sort:
+      field: _none
+    auto_create: false
+field_type: entity_reference

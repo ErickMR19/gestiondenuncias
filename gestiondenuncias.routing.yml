@@ -1,0 +1,7 @@
+gestiondenuncias_contribute_form:
+    path: 'denuncias/enviar_denuncia'
+    defaults:
+        _form: '\Drupal\gestiondenuncias\Form\EnviarDenunciaForm'
+        _title: 'Enviar denuncia'
+    requirements:
+        _permission: 'access content'

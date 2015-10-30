@@ -2,7 +2,7 @@ name: Gestion de denuncias
 type: module
 description: Creado para la apliacion de la Asamblea
 core: 8.x
-version: 0.3-alpha2
+version: 0.6-alpha1
 package: Custom
 dependencies:
   - rest
