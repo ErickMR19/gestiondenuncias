@@ -1,0 +1,4 @@
+gestiondenuncias.recaptcha:
+    js:
+        js/captcharespuesta.js: {}
+        https://www.google.com/recaptcha/api.js : { type: external }

@@ -10,6 +10,9 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\node\Entity\Node;
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\CssCommand;
+use Drupal\Core\Ajax\HtmlCommand;
 
 /**
  * EnviarDenunciasForm form.
@@ -22,6 +25,37 @@ class EnviarDenunciaForm extends FormBase {
       return 'gestiondenuncias_enviardenuncia_form';
   }
 
+
+public function validateEmailAjax(array &$form, FormStateInterface $form_state) {
+  $httpClient = \Drupal::httpClient();
+  $configuration = $this->config('gestiondenuncias.configuration');
+  $pwd = $configuration->get('contrasena_verifyemail');
+  $usr = $configuration->get('nombre_ususario_verifyemail');
+  $email = $form_state->getValues('denunciante')['email'];
+  $serverResponse = json_decode($httpClient->request('POST',"http://api.verify-email.org/api.php?usr=$usr&pwd=$pwd&check=$email")->getBody()->getContents());
+  $response = new AjaxResponse();
+  if($serverResponse->authentication_status != 1){
+    \Drupal::logger('gestiondenuncias.verify-email')->error('Los parametros de conexion a verify-email son incorrectos');
+  }
+  else if($serverResponse->limit_status){
+    \Drupal::logger('gestiondenuncias.verify-email')->error('Se llego al limite de consultas de verify-email');
+  }
+  else{
+      if ($serverResponse->verify_status) {
+        $css = ['border' => '1px solid green'];
+        $message = $this->t('Email ok.');
+      }
+      else {
+        $css = ['border' => '1px solid red'];
+        $message = $this->t('Email not valid.');
+      }
+      $message = $message . $form_state->getValues()['denunciante']['email'];
+      $response->addCommand(new CssCommand('#edit-email', $css));
+      $response->addCommand(new HtmlCommand('.email-valid-message', $message));
+  }
+  return $response;
+}
+
   /**
    * {@inheritdoc}
    */
@@ -30,8 +64,8 @@ class EnviarDenunciaForm extends FormBase {
       /**
         * TODO: agregar funcionalidad del captcha
         **/
-    //$form['#attached']['library'][] = 'gestiondenuncias/gestiondenuncias.recaptcha';
-
+    $configuration = $this->config('gestiondenuncias.configuration');
+    //kint( $configuration->getRawData() );
     //optiene el usuario actual
     $user = \Drupal::currentUser();
     if($user->isAnonymous()){
@@ -89,9 +123,19 @@ class EnviarDenunciaForm extends FormBase {
       '#type' => 'textfield',
       '#attributes' => array('placeholder' => 'Apellidos'),
     );
+    $ajax = NULL;
+    if ( $configuration->get('validar_email') ){
+        $ajax = [
+           'callback' => array($this, 'validateEmailAjax'),
+           'event' => 'change',
+           'progress' => array( 'type' => 'throbber', 'message' => t('Verificando email...'), ),
+        ];
+    }
     $form['denunciante']['email'] = array(
       '#type' => 'email',
       '#attributes' => array('placeholder' => 'Dirección de Correo Electrónico'),
+      '#ajax' => $ajax,
+      '#suffix' => '<span class="email-valid-message"></span>'
     );
 
     $form['imagenes'] = array(
@@ -107,18 +151,65 @@ class EnviarDenunciaForm extends FormBase {
       )
     );
 
+    if( $user->isAnonymous() && $configuration->get('verificar_via_recaptcha') )
+    {
+
+        if( $configuration->get('entorno_prueba_recaptcha') ){
+            $widgetRecaptcha = "<br /><div class='g-recaptcha' data-sitekey='6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI' data-callback='copiardatoscaptcha'></div>";
+        }
+        else{
+            $llavePublica = $configuration->get('public_key_recaptcha');
+            $widgetRecaptcha = "<br /><div class='g-recaptcha' data-sitekey='$llavePublica' data-callback='copiardatoscaptcha'></div>";
+        }
+
+        $form['#attached']['library'][] = 'gestiondenuncias/gestiondenuncias.recaptcha';
+        $form['captcha-info'] = array(
+         '#type' => 'hidden',
+         '#attributes' => array(
+            'id' => 'drupal-captcha-response',
+         ),
+         '#suffix' => $widgetRecaptcha
+        );
+    }
+
+
+
     $form['submit'] = array(
       '#type' => 'submit',
       '#value' => t('Submit'),
     );
 
+    //$httpClient = \Drupal::httpClient();
+    //kint($httpClient);
+    //kint());
+    //kint($form['denunciante']['email']);
     return $form;
   }
+
 
   /**
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
+    $user = \Drupal::currentUser();
+    $configuration = $this->config('gestiondenuncias.configuration');
+    $httpClient = \Drupal::httpClient();
+    if( $user->isAnonymous() && $configuration->get('verificar_via_recaptcha') )
+    {
+        $captchauser = $form_state->getValues()['captcha-info'];
+        $key = ( $configuration->get('entorno_prueba_recaptcha') ) ? '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe' : $configuration->get('private_key_recaptcha');
+        $captcharesponse = json_decode( $httpClient->request('POST',"https://www.google.com/recaptcha/api/siteverify?secret=$key&response=$captchauser")->getBody()->getContents());
+        if($captcharesponse->success){
+            drupal_set_message("Exito!");
+        }
+        else{
+            drupal_set_message("Fallo :(");
+        }
+    }
+
+
+
+    $form_state->setErrorByName('imagenes', 'Solo se permiten dos imagenes');
       if (count($form_state->getValues()['imagenes']) > 2) {
             $form_state->setErrorByName('imagenes', 'Solo se permiten dos imagenes');
       }

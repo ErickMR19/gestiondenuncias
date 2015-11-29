@@ -5,3 +5,14 @@ gestiondenuncias_contribute_form:
         _title: 'Enviar denuncia'
     requirements:
         _permission: 'access content'
+
+gestiondenuncias.configuration_form:
+  path: '/admin/config/gestiondenuncias/configuration'
+  defaults:
+    _form: '\Drupal\gestiondenuncias\Form\ConfigurationForm'
+    _title: 'ConfigurationForm'
+  requirements:
+    _permission: 'access administration pages'
+  options:
+    _admin_route: TRUE
+

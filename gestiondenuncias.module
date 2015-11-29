@@ -29,8 +29,60 @@ function gestiondenuncias_help($route_name, RouteMatchInterface $route_match) {
 /**
  * Implements hook_theme().
  */
-function gestiondenuncias_theme() {
+function gestiondenuncias_theme($existing, $type, $theme, $path) {
   $theme = [];
 
   return $theme;
+}
+
+function gestiondenuncias_form_alter(&$form, $form_state, $form_id){
+    //kint($form_id);
+    //kint($form);
+}
+
+function gestiondenuncias_node_view_alter(&$build, $entity, $display, $view_mode){
+
+    //optiene el usuario actual
+    $user = \Drupal::currentUser();
+
+    //solo permite agregar asignaciones si el usuario encargado es quien está logueado
+    if($user->id() != $build['field_usuario_encargado']['0']['#account']->id())
+    {
+        $build['field_asignaciones']['0']['comment_form'] = NULL;
+    }
+}
+
+function gestiondenuncias_form_node_denuncia_edit_form_alter(&$form, $form_state, $form_id){
+
+
+    $form['title'] =  null;
+    $form['revision_information'] =  false;
+    $form['revision'] =  false;
+    $form['revision_log'] =  false;
+    /*
+    unset($form['title']);
+    unset($form['revision_log']);
+    unset($form['author']);
+    unset($form['actions']['preview']);
+    unset($form['#entity_builders']);
+    unset($form['revision_information']);
+    unset($form['revision']);
+    unset($form['author']);
+    unset($form['options']);
+    unset($form['changed']);
+    unset($form['advanced']);
+    */
+}
+
+function gestiondenuncias_form_comment_asignacion_entidad_form_alter(&$form, $form_state, $form_id){
+    //kint($form);
+    if( isset($form['#title']) ){ // edicion de comment
+        $form['field_entidad_encargada']['#disabled'] = TRUE;
+            //kint($form);
+    }
+    else { // nuevo comment
+        //kint($form);
+        $form['field_fecha_respuesta'] = NULL;
+    }
+
 }

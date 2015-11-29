@@ -1,0 +1,5 @@
+gestiondenuncias.config:
+  title: Configurar módulo de denuncias
+  description: 'Configurar algunas opciones para el módulo de denuncias'
+  parent: system.admin_config_system
+  route_name: gestiondenuncias.configuration_form

@@ -1,8 +1,9 @@
 name: Gestion de denuncias
 type: module
 description: Creado para la apliacion de la Asamblea
+configure: gestiondenuncias.configuration_form
 core: 8.x
-version: 0.6-alpha1
+version: 0.8-alpha1
 package: Custom
 dependencies:
   - rest
