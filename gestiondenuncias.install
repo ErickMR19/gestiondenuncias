@@ -29,5 +29,9 @@ function gestiondenuncias_install(){
         ]
     )->save();
     \Drupal::logger('gestiondenuncias')->notice("Agregadas los tipos de denuncia");
+    db_insert('consecutivos_denuncias')->fields(array( 'tipoDenuncia' => 'Anónima', 'numeroActual' => 0,	))->execute();
+    db_insert('consecutivos_denuncias')->fields(array( 'tipoDenuncia' => 'Personal', 'numeroActual' => 0,	))->execute();
+    db_insert('consecutivos_denuncias')->fields(array( 'tipoDenuncia' => 'Física', 'numeroActual' => 0,	))->execute();
+    db_insert('consecutivos_denuncias')->fields(array( 'tipoDenuncia' => 'Comunal', 'numeroActual' => 0,	))->execute();
 
 }

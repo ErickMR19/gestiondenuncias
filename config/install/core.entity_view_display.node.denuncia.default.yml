@@ -9,28 +9,40 @@ dependencies:
     - field.field.node.denuncia.field_denunciante_nombre
     - field.field.node.denuncia.field_descripcion
     - field.field.node.denuncia.field_file
-    - field.field.node.denuncia.field_image
+    - field.field.node.denuncia.field_imagen
     - field.field.node.denuncia.field_tipo_denuncia
     - field.field.node.denuncia.field_usuario_encargado
     - node.type.denuncia
   module:
+    - comment
+    - file
     - image
     - user
+  enforced:
+    module:
+      - gestiondenuncias
 id: node.denuncia.default
 targetEntityType: node
 bundle: denuncia
 mode: default
 content:
+  field_asignaciones:
+    type: comment_default
+    weight: 6
+    label: above
+    settings:
+      pager_id: 0
+    third_party_settings: {  }
   field_denunciante_apellidos:
     type: string
-    weight: 3
+    weight: 5
     label: above
     settings:
       link_to_entity: false
     third_party_settings: {  }
   field_denunciante_nombre:
     type: string
-    weight: 2
+    weight: 4
     label: above
     settings:
       link_to_entity: false
@@ -41,26 +53,31 @@ content:
     label: above
     settings: {  }
     third_party_settings: {  }
-  field_image:
-    type: image
-    weight: 4
+  field_file:
+    type: file_url_plain
+    weight: 3
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+  field_imagen:
+    weight: 2
     label: above
     settings:
       image_style: ''
       image_link: ''
     third_party_settings: {  }
-  field_tipo_denuncia:
+    type: image
+  field_usuario_encargado:
+    type: entity_reference_entity_view
     weight: 0
     label: above
     settings:
-      link: true
+      view_mode: default
+      link: false
     third_party_settings: {  }
-    type: entity_reference_label
 hidden:
-  field_asignaciones: true
   field_denuncia_archivada: true
   field_denunciante_email: true
-  field_file: true
-  field_usuario_encargado: true
+  field_tipo_denuncia: true
   langcode: true
   links: true

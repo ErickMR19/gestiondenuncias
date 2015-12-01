@@ -6,6 +6,7 @@
  */
 
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Datetime\DrupalDateTime;
 
 /**
  * Implements hook_help().
@@ -26,6 +27,18 @@ function gestiondenuncias_help($route_name, RouteMatchInterface $route_match) {
   }
 }
 
+function gestiondenuncias_schema() {
+    $schema['consecutivos_denuncias'] = array(
+        'fields' => array(
+            'tipoDenuncia' => array( 'type' => 'varchar', 'length' => 40, ),
+            'numeroActual' => array( 'type' => 'int', 'size'=>'normal','not null' => TRUE, )
+        ),
+        'primary key' => array('tipoDenuncia'),
+    );
+    return $schema;
+}
+
+
 /**
  * Implements hook_theme().
  */
@@ -41,48 +54,108 @@ function gestiondenuncias_form_alter(&$form, $form_state, $form_id){
 }
 
 function gestiondenuncias_node_view_alter(&$build, $entity, $display, $view_mode){
-
-    //optiene el usuario actual
-    $user = \Drupal::currentUser();
-
-    //solo permite agregar asignaciones si el usuario encargado es quien está logueado
-    if($user->id() != $build['field_usuario_encargado']['0']['#account']->id())
-    {
-        $build['field_asignaciones']['0']['comment_form'] = NULL;
+    if($entity->bundle() === 'denuncia'){
+        //optiene el usuario actual
+        $user = \Drupal::currentUser();
+        kint($entity);
+        //solo permite agregar asignaciones si el usuario encargado es quien está logueado
+        if( !$build['field_usuario_encargado']['0'] || $user->id() != $build['field_usuario_encargado']['0']['#user']->id())
+        {
+            $build['field_asignaciones']['0']['comment_form'] = NULL;
+        }
     }
 }
 
-function gestiondenuncias_form_node_denuncia_edit_form_alter(&$form, $form_state, $form_id){
+function gestiondenuncias_node_insert(Drupal\Core\Entity\EntityInterface $entity) {
+    if($entity->bundle() === 'denuncia')
+    {
+            kint("Inserción denuncia");
+            /*
+             * TODO: enviar correo al rol escogido ( cola )
+             */
+            exit;
+    }
+}
 
+function gestiondenuncias_comment_insert(Drupal\Core\Entity\EntityInterface $entity) {
+    if($entity->bundle() === 'asignacion_entidad')
+    {
+            kint("Inserción comentario");
+            /*
+             * TODO: enviar correo al denunciante ( cola )
+             */
+            exit;
+    }
+}
+
+function gestiondenuncias_node_update(Drupal\Core\Entity\EntityInterface $entity) {
+    if($entity->bundle() === 'denuncia')
+    {
+            kint("Actualización denuncia");
+            /*
+             * TODO: - Enviar correo al denunciante informando de los cambios ( cola )
+             *       - ! Poner como autor de los comentarios que hayan al nuevo gestor
+             *       - Enviar correo al gestor para notificar su nueva asignacion ( cola )
+             */
+            exit;
+    }
+}
+
+function gestiondenuncias_comment_update(Drupal\Core\Entity\EntityInterface $entity) {
+    if($entity->bundle() === 'asignacion_entidad')
+    {
+            kint("Actualización comentario");
+            /*
+             * TODO: Enviar correo al denunciante informando de los cambios ( cola )
+             */
+            exit;
+    }
+}
+
+function gestiondenuncias_cron(){
+    $now = new DrupalDateTime();
+    $text = $now->format('z');
+    \Drupal::logger('gestiondenuncias.cron')->debug("Se ejecutó un cron :P $text");
+
+}
+
+function gestiondenuncias_form_node_denuncia_edit_form_alter(&$form, $form_state, $form_id){
 
     $form['title'] =  null;
     $form['revision_information'] =  false;
     $form['revision'] =  false;
     $form['revision_log'] =  false;
-    /*
-    unset($form['title']);
-    unset($form['revision_log']);
-    unset($form['author']);
-    unset($form['actions']['preview']);
-    unset($form['#entity_builders']);
-    unset($form['revision_information']);
-    unset($form['revision']);
-    unset($form['author']);
-    unset($form['options']);
-    unset($form['changed']);
-    unset($form['advanced']);
-    */
+
 }
 
 function gestiondenuncias_form_comment_asignacion_entidad_form_alter(&$form, $form_state, $form_id){
-    //kint($form);
-    if( isset($form['#title']) ){ // edicion de comment
-        $form['field_entidad_encargada']['#disabled'] = TRUE;
-            //kint($form);
-    }
-    else { // nuevo comment
-        //kint($form);
+    $form['#validate'][] = 'verificar_fechas';
+    $form['subject']['widget']['#required'] = TRUE;
+    $form['subject']['widget']['0']['#required'] = TRUE;
+    $form['subject']['widget']['0']['#title'] = t('Entidad Encargada');
+    $form['subject']['widget']['#title'] = t('Entidad Encargada');
+    $form['subject']['widget']['0']['value']['#required'] = TRUE;
+    $form['subject']['widget']['0']['value']['#title'] = t('Entidad Encargada');
+    if( ! isset( $form['subject']['widget']['0']['value']['#default_value'] ) ){ // edicion de comment
         $form['field_fecha_respuesta'] = NULL;
+    }
+}
+
+function verificar_fechas($form, &$form_state) {
+
+    $values = $form_state->getValues();
+    $now = new DrupalDateTime();
+    $fecha_esperada = $values['field_fecha_esperada'][0]['value'];
+
+    if( $values['field_fecha_respuesta'] && $values['field_fecha_respuesta'][0]['value'] )
+    {
+        $fecha_respuesta = $values['field_fecha_respuesta'][0]['value'];
+        if( $fecha_esperada > $fecha_respuesta ){
+            $form_state->setErrorByName('field_fecha_respuesta', 'La fecha de respuesta no puede ser anterior a la esperada');
+        }
+    }
+    if( $fecha_esperada <= $now ){
+        $form_state->setErrorByName('field_fecha_esperada', 'La fecha esperada debe ser posterior al día actual');
     }
 
 }

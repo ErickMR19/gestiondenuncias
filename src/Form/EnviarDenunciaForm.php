@@ -4,6 +4,7 @@
  * Contains \Drupal\gestiondenuncias\Form\EnviarDenunciaForm.
  */
 
+
 namespace Drupal\gestiondenuncias\Form;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -13,6 +14,7 @@ use Drupal\node\Entity\Node;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\CssCommand;
 use Drupal\Core\Ajax\HtmlCommand;
+
 
 /**
  * EnviarDenunciasForm form.
@@ -24,7 +26,6 @@ class EnviarDenunciaForm extends FormBase {
   public function getFormId() {
       return 'gestiondenuncias_enviardenuncia_form';
   }
-
 
 public function validateEmailAjax(array &$form, FormStateInterface $form_state) {
   $httpClient = \Drupal::httpClient();
@@ -78,14 +79,13 @@ public function validateEmailAjax(array &$form, FormStateInterface $form_state) 
         );
     }
     else{
-        /**
-          * TODO: agregar elementos al array dependiendo del permiso
-          **/
         $opciones = array();
         $opciones["Anónima"] = "Anónima";
         $opciones["Personal"] = "No Anónima";
-        $opciones["Física"] = "Física";
-        $opciones['Comunal'] = "Comunal";
+        if( $user->hasPermission('enviar denuncias fisicas') )
+            $opciones["Física"] = "Física";
+        if( $user->hasPermission('enviar denuncias comunales') )
+            $opciones['Comunal'] = "Comunal";
 
         $form['tipo_denuncia_m'] = array(
            '#type' => 'select',
@@ -93,6 +93,7 @@ public function validateEmailAjax(array &$form, FormStateInterface $form_state) 
            '#options' => $opciones,
            '#default_value' => $category['selected'],
            '#description' => t('Seleccionar el tipo de denuncia'),
+           '#required' => TRUE,
          );
          $ocultarDenunciante = array(
              ':input[name="tipo_denuncia_m"]' => array('value' => 'Anónima'),
@@ -137,12 +138,11 @@ public function validateEmailAjax(array &$form, FormStateInterface $form_state) 
       '#ajax' => $ajax,
       '#suffix' => '<span class="email-valid-message"></span>'
     );
-
     $form['imagenes'] = array(
       '#type' => 'managed_file',
       '#title' => 'Imágenes',
       '#multiple' => TRUE,
-      '#theme' => 'file_widget_multiple',
+      //'#theme' => 'file_widget_multiple',
       '#upload_location' => 'public://',
       '#upload_validators' => array(
         'file_validate_extensions' => array('gif png jpg jpeg'),
@@ -150,7 +150,9 @@ public function validateEmailAjax(array &$form, FormStateInterface $form_state) 
         'file_validate_size' => array(2*1024*1024),
       )
     );
-
+    $form['error-hidd'] = array(
+     '#type' => 'hidden',
+    );
     if( $user->isAnonymous() && $configuration->get('verificar_via_recaptcha') )
     {
 
@@ -199,20 +201,13 @@ public function validateEmailAjax(array &$form, FormStateInterface $form_state) 
         $captchauser = $form_state->getValues()['captcha-info'];
         $key = ( $configuration->get('entorno_prueba_recaptcha') ) ? '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe' : $configuration->get('private_key_recaptcha');
         $captcharesponse = json_decode( $httpClient->request('POST',"https://www.google.com/recaptcha/api/siteverify?secret=$key&response=$captchauser")->getBody()->getContents());
-        if($captcharesponse->success){
-            drupal_set_message("Exito!");
-        }
-        else{
-            drupal_set_message("Fallo :(");
+        if(! $captcharesponse->success){
+            $form_state->setErrorByName('captcha-info', 'Fallo en el captcha');
         }
     }
-
-
-
-    $form_state->setErrorByName('imagenes', 'Solo se permiten dos imagenes');
-      if (count($form_state->getValues()['imagenes']) > 2) {
-            $form_state->setErrorByName('imagenes', 'Solo se permiten dos imagenes');
-      }
+    if (count($form_state->getValues()['imagenes']) > 2) {
+        $form_state->setErrorByName('error-hidd', 'Solo se permiten dos imagenes');
+    }
       //unset($form_state->getValues()['imagenes']);
 
           /**
@@ -224,7 +219,14 @@ public function validateEmailAjax(array &$form, FormStateInterface $form_state) 
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+      $user = \Drupal::currentUser();
       $valores = $form_state->getValues();
+      if( $user->isAnonymous() ){
+          $tipoDenuncia = ( $valores['tipo_denuncia_bool'] ) ? 'Anónima' : 'Personal' ;
+      }
+      else {
+         $tipoDenuncia = $valores['tipo_denuncia_m'];
+      }
       $denunciante = $form_state->getValues('denunciante');
       $imagenes = array_map(function ($n){ return array('target_id'=>$n); }, $valores['imagenes']);
 
@@ -235,13 +237,14 @@ public function validateEmailAjax(array &$form, FormStateInterface $form_state) 
           $terminosAsociados[$termino->label()] = $termino->id();
       }
       // si no es anonimo
-      $tipoDeDenuncia = $terminosAsociados[$valores['tipo_denuncia_m']];
-      $titulo = 'Denuncia' . $valores['tipo_denuncia_m'] . '19';
+      $CodigoTipoDeDenuncia = $terminosAsociados[$tipoDenuncia];
+      $num = $this->obtenerSiguiente($tipoDenuncia);
+      $titulo = 'Denuncia-' . $tipoDenuncia . '-'. $num;
     $node = Node::create([
       'type'  => 'denuncia',
       'title' => $titulo,
       'field_image' => $imagenes,
-      'field_tipo_denuncia' => $tipoDeDenuncia,
+      'field_tipo_denuncia' => $CodigoTipoDeDenuncia,
       'field_descripcion' => $valores['descripcion'],
       'field_denunciante_nombre' => $denunciante['nombre'],
       'field_denunciante_apellidos' => $denunciante['apellidos'],
@@ -251,5 +254,28 @@ public function validateEmailAjax(array &$form, FormStateInterface $form_state) 
     drupal_set_message("Denuncia recibida. Muchas gracias!");
 
   }
+
+  private function obtenerSiguiente($tipo){
+      switch( $tipo ){
+          case 'Anónima':
+          case 'Personal':
+          case 'Física':
+          case 'Comunal':
+                  try {
+                    $result = db_query('SELECT * FROM {consecutivos_denuncias} WHERE tipoDenuncia= :tipo', array(':tipo' => $tipo))->fetchAllAssoc('tipoDenuncia');
+                    db_query('UPDATE {consecutivos_denuncias} SET numeroActual = numeroActual + 1 WHERE tipoDenuncia= :tipo', array(':tipo' => $tipo));
+                    return $result[$tipo]->numeroActual;
+                  }
+                  catch ( Exception $exception ) {
+                    $t->rollBack();
+                    throw $exception;
+                  }
+              break;
+          default:
+              \Drupal::logger('gestiondenuncias.obtenerConsecutivos')->error('Problemas al obtener el siguiente del tipo @tipo', array( '@tipo' => $tipo ));
+              return FALSE;
+      }
+  }
+
 }
 ?>

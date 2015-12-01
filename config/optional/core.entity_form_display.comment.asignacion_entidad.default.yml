@@ -1,0 +1,53 @@
+langcode: es
+status: true
+dependencies:
+  config:
+    - comment.type.asignacion_entidad
+    - field.field.comment.asignacion_entidad.field_comentarios
+    - field.field.comment.asignacion_entidad.field_fecha_esperada
+    - field.field.comment.asignacion_entidad.field_fecha_respuesta
+    - field.field.comment.asignacion_entidad.field_file
+  module:
+    - datetime
+    - file
+  enforced:
+    module:
+      - gestiondenuncias
+id: comment.asignacion_entidad.default
+targetEntityType: comment
+bundle: asignacion_entidad
+mode: default
+content:
+  field_comentarios:
+    type: string_textarea
+    weight: 3
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+  field_fecha_esperada:
+    type: datetime_default
+    weight: 1
+    settings: {  }
+    third_party_settings: {  }
+  field_fecha_respuesta:
+    type: datetime_default
+    weight: 2
+    settings: {  }
+    third_party_settings: {  }
+  field_file:
+    type: file_generic
+    weight: 4
+    settings:
+      progress_indicator: throbber
+    third_party_settings: {  }
+  subject:
+    type: string_textfield
+    weight: 0
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  author: true
+  langcode: true

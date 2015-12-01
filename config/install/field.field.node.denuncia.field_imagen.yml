@@ -2,12 +2,12 @@ langcode: es
 status: true
 dependencies:
   config:
-    - field.storage.node.field_image
+    - field.storage.node.field_imagen
     - node.type.denuncia
   module:
     - image
-id: node.denuncia.field_image
-field_name: field_image
+id: node.denuncia.field_imagen
+field_name: field_imagen
 entity_type: node
 bundle: denuncia
 label: Imagen
