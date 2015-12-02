@@ -123,6 +123,15 @@ class ConfigurationForm extends ConfigFormBase {
       '#default_value' => $config->get('entorno_prueba_recaptcha'),
     );
 
+    $form['enviar-email-supervisores'] = array(
+      '#type' => 'checkbox',
+      '#title' => $this->t('Enviar correos al recibir denunicas'),
+      '#description' => $this->t('Activar si desea notificar a los supervisores'),
+      '#default_value' => $config->get('enviar_email_supervisores'),
+    );
+
+
+
     return parent::buildForm($form, $form_state);
   }
 
@@ -148,7 +157,10 @@ class ConfigurationForm extends ConfigFormBase {
       ->set('private_key_recaptcha', $form_state->getValues('datos-recaptcha')['private_key_recaptcha'])
       ->set('public_key_recaptcha', $form_state->getValues('datos-recaptcha')['public_key_recaptcha'])
       ->set('entorno_prueba_recaptcha', $form_state->getValues('datos-recaptcha')['entorno_prueba_recaptcha'])
+      ->set('enviar_email_supervisores', $form_state->getValue('enviar-email-supervisores'))
       ->save();
+
+      drupal_set_message("Es recomendable Vaciar todas las cachés");
   }
 
 }

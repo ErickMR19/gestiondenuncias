@@ -9,7 +9,7 @@ manejar denuncias:
 
 administrar supervisores:
   # (required) Human readable name of the permission used in the UI.
-  title: 'Asignar supervisores de denuncias'
+  title: 'Asignar gestores de denuncias'
   # (optional) Additional description fo the permission used in the UI.
   description: 'Permite agregar a las denuncias un usuarios encargado de darle seguimiento'
   # (optional) Boolean, when set to true a warning about site security will

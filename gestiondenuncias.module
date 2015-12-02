@@ -7,13 +7,15 @@
 
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Datetime\DrupalDateTime;
+use Drupal\Component\Utility\SafeMarkup;
+use Drupal\Core\Entity\EntityInterface;
 
 /**
  * Implements hook_help().
  */
 function gestiondenuncias_help($route_name, RouteMatchInterface $route_match) {
   switch ($route_name) {
-    // Main module help for the serviciosweb module.
+    // Main module help for the gestiondenuncias module.
     case 'help.page.gestiondenuncias':
       $output = '';
       $output .= '<h3>' . t('Acerca de') . '</h3>';
@@ -57,7 +59,6 @@ function gestiondenuncias_node_view_alter(&$build, $entity, $display, $view_mode
     if($entity->bundle() === 'denuncia'){
         //optiene el usuario actual
         $user = \Drupal::currentUser();
-        kint($entity);
         //solo permite agregar asignaciones si el usuario encargado es quien está logueado
         if( !$build['field_usuario_encargado']['0'] || $user->id() != $build['field_usuario_encargado']['0']['#user']->id())
         {
@@ -69,20 +70,33 @@ function gestiondenuncias_node_view_alter(&$build, $entity, $display, $view_mode
 function gestiondenuncias_node_insert(Drupal\Core\Entity\EntityInterface $entity) {
     if($entity->bundle() === 'denuncia')
     {
-            kint("Inserción denuncia");
-            /*
-             * TODO: enviar correo al rol escogido ( cola )
-             */
-            exit;
+        // Mensaje del correo
+        global $base_url;
+        $link = "<a href=$base_url/node/".$entity->get('nid')->value.'>Ver denuncia</a>';
+        $params['message'] = 'Nueva denuncia:<br><br>'.$entity->get('field_descripcion')->value.'<br><br>'.$link;
+        $params['node_title'] = $entity->label();
+
+        // Notifica a los supervisores
+        notificarSupervisores($params);
+        $correo = $entity->get('field_denunciante_email')->value;
+
+        if( !empty($correo) ){
+
+            $key = 'denuncia_enviada'; // Plantilla de correo
+            $params['message'] = 'Denuncia:<br><br>'.$entity->get('field_descripcion')->value.'<br><br>Muchas gracias por su denuncia.'; // Mensaje del correo
+            notificarDenunciante($correo, $key, $params);
+        }
     }
 }
 
 function gestiondenuncias_comment_insert(Drupal\Core\Entity\EntityInterface $entity) {
     if($entity->bundle() === 'asignacion_entidad')
     {
-            kint("Inserción comentario");
+            // obtiene la denuncia sobre la que se realizo la asignacion_entidad para recueperar el correo o lo que sea necesario
+            $denuncia = $entity->getCommentedEntity();
+            kint($denuncia);
             /*
-             * TODO: enviar correo al denunciante ( cola )
+             * TODO: enviar correo al denunciante
              */
             exit;
     }
@@ -93,9 +107,9 @@ function gestiondenuncias_node_update(Drupal\Core\Entity\EntityInterface $entity
     {
             kint("Actualización denuncia");
             /*
-             * TODO: - Enviar correo al denunciante informando de los cambios ( cola )
+             * TODO: - Enviar correo al denunciante informando de los cambios
              *       - ! Poner como autor de los comentarios que hayan al nuevo gestor
-             *       - Enviar correo al gestor para notificar su nueva asignacion ( cola )
+             *       - Enviar correo al gestor para notificar su nueva asignacion
              */
             exit;
     }
@@ -106,7 +120,7 @@ function gestiondenuncias_comment_update(Drupal\Core\Entity\EntityInterface $ent
     {
             kint("Actualización comentario");
             /*
-             * TODO: Enviar correo al denunciante informando de los cambios ( cola )
+             * TODO: Enviar correo al denunciante informando de los cambios
              */
             exit;
     }
@@ -158,4 +172,115 @@ function verificar_fechas($form, &$form_state) {
         $form_state->setErrorByName('field_fecha_esperada', 'La fecha esperada debe ser posterior al día actual');
     }
 
+}
+
+// Notifica a todos los supervisores cuando se agrega una nueva denuncia
+function notificarSupervisores($params){
+	$mailManager = \Drupal::service('plugin.manager.mail');
+	$module = 'gestiondenuncias';
+	$key = 'nueva_denuncia_recibida';
+	$langcode = \Drupal::currentUser()->getPreferredLangcode();
+	$send = true;
+
+	$uids = \Drupal::entityQuery('user')->execute(); // Devuelve los id's de todos los usuarios
+	$users = \Drupal::entityManager()->getStorage('user')->loadMultiple($uids); // Carga todos los usuarios
+	$emails = array();
+
+	//Envia el correo a todos los usuarios
+	foreach ($users as $user) {
+		// Si el usuario es un supervisor de gestores
+		if( $user->hasPermission('administrar supervisores') ){
+			$emails[] = $user->get('mail')->value; // Obtiene la dirección de correo
+		}
+	}
+
+	$to = implode(",",$emails);
+	$result = $mailManager->mail($module, $key, $to, $langcode, $params, NULL, $send); // Envia el correo
+
+	if ( ! $result['result']) {
+		$message = t('Ocurrió un problema enviando una notificación a los correos @email', array('@email' => $to));
+		drupal_set_message($message, 'error');
+		\Drupal::logger('gestiondenuncias')->error($message);
+		return;
+	}
+
+	$message = t('Se ha enviado una notificación a los correos @email por la creación de una denuncia.', array('@email' => $to));
+	\Drupal::logger('gestiondenuncias')->notice($message);
+}
+
+
+
+
+// Notifica al denunciante
+function notificarDenunciante($to, $key, $params){
+
+	$mailManager = \Drupal::service('plugin.manager.mail');
+
+	$module = 'gestiondenuncias';
+	$langcode = \Drupal::currentUser()->getPreferredLangcode();
+	$send = true;
+
+	$result = $mailManager->mail($module, $key, $to, $langcode, $params, NULL, $send); // Envia el correo
+
+	if ( ! $result['result']) {
+		$message = t('Ocurrió un problema enviando una notificación a @email', array('@email' => $to));
+		drupal_set_message($message, 'error');
+		\Drupal::logger('gestiondenuncias')->error($message);
+		return;
+	}
+
+	$message = t('Se ha enviado una notificación a @email', array('@email' => $to));
+	drupal_set_message($message);
+	\Drupal::logger('gestiondenuncias')->notice($message);
+}
+
+
+
+
+/**
+* Implements hook_mail().
+*/
+function gestiondenuncias_mail($key, &$message, $params) {
+	$options = array(
+		'langcode' => $message['langcode'],
+	);
+	global $base_url;
+	$message['headers']['MIME-Version'] = '1.0';
+	$message['headers']['Content-Type'] = 'text/html; charset=UTF-8;';
+
+	$message['from'] = \Drupal::config('system.site')->get('mail');
+
+	$plantilla = file_get_contents("public://templates/correo.html");
+	$plantilla = str_replace('{{content}}', $params['message'], $plantilla);
+	$plantilla = str_replace('{{ enlace }}', $base_url, $plantilla);
+
+	$params['message'] = $plantilla;
+
+	// Plantillas de correo
+	switch ($key) {
+		case 'nueva_denuncia_recibida':
+			$message['subject'] = t('Nueva denuncia fue creada: @title', array('@title' => $params['node_title']));
+			$message['body'][] = SafeMarkup::checkPlain($params['message']);
+			break;
+
+		case 'denuncia_enviada':
+			$message['subject'] = t('Su denuncia fue enviada correctamente.');
+			$message['body'][] = SafeMarkup::checkPlain($params['message']);
+			break;
+
+		case 'cambio_denuncia':
+			$message['subject'] = t('La denuncia enviada por usted tuvo un cambio.');
+			$message['body'][] = SafeMarkup::checkPlain($params['message']);
+			break;
+
+		case 'comentario_denuncia':
+			$message['subject'] = t('Se realizo una gestión en la denuncia enviada por usted.');
+			$message['body'][] = SafeMarkup::checkPlain($params['message']);
+			break;
+
+		case 'cambio_comentario_denuncia':
+			$message['subject'] = t('Se realizo un cambio en la gestión de una denuncia');
+			$message['body'][] = SafeMarkup::checkPlain($params['message']);
+			break;
+	}
 }

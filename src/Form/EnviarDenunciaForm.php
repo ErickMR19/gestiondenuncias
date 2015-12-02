@@ -91,7 +91,7 @@ public function validateEmailAjax(array &$form, FormStateInterface $form_state) 
            '#type' => 'select',
            '#title' => t(''),
            '#options' => $opciones,
-           '#default_value' => $category['selected'],
+           '#default_value' => 'Personal',
            '#description' => t('Seleccionar el tipo de denuncia'),
            '#required' => TRUE,
          );

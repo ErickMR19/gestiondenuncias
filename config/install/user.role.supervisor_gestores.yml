@@ -10,3 +10,6 @@ weight: 4
 is_admin: null
 permissions:
   - 'administrar supervisores'
+  - 'edit any denuncia content'
+  - 'edit own denuncia content'
+  - 'access user profiles'
