@@ -18,10 +18,15 @@ function gestiondenuncias_help($route_name, RouteMatchInterface $route_match) {
     // Main module help for the gestiondenuncias module.
     case 'help.page.gestiondenuncias':
       $output = '';
-      $output .= '<h3>' . t('Acerca de') . '</h3>';
+      $output .= '<h2>' . t('Acerca de') . '</h2>';
       $output .= '<p>' . t('Creado para la apliacion de la Asamblea') . '</p>';
-      $output .= '<p>' . t('Provee un tipo de contenido "Denuncia" y un tipo de comentario "Asignacion entidad"');
-      $output .= t('Además provee una API rest para obtener/crear estos contenidos') . '</p>';
+      $output .= '<p>' . t('Provee un tipo de contenido "Denuncia" y un tipo de comentario "Asignacion entidad"') . '</p>';
+      $output .= '<div><h3>' . t('Crea las siguientes rutas: ') . '</h3><table>';
+      $output .= '<thead><tr>' . '<th>Ruta</th> <th> Info </th> <th>Permisos</th>' . '</tr></thead>';
+      $output .= '<tr>' . '<td>denuncias/enviar_denuncia</td> <td> se utiliza para enviar denuncias de los cuatro tipos</td> <td>todos</td>' . '</tr>';
+      $output .= '<tr>' . '<td>denuncias/todas</td> <td>lista todas las denuncias del sistema</td> <td>supervisores</td>' . '</tr>';
+      $output .= '<tr>' . '<td>denuncias/sinasignar</td> <td>ista las denuncias del sistema sin asignar</td> <td>supervisores</tr>' . '</tr>';
+      $output .= '<tr>' . '<td>denuncias/asignadas</td> <td>lista todas las denuncias asignadas al usuario actual</td> <td>gestores</td>' . '</tr>'.'</table></div>';
 
       return $output;
 
@@ -134,12 +139,14 @@ function gestiondenuncias_cron(){
 }
 
 function gestiondenuncias_form_node_denuncia_edit_form_alter(&$form, $form_state, $form_id){
-
+    $user = \Drupal::currentUser();
     $form['title'] =  null;
     $form['revision_information'] =  false;
     $form['revision'] =  false;
     $form['revision_log'] =  false;
-
+    if( ! $user->hasPermission('administrar supervisores')  ){
+        $form['field_usuario_encargado'] = FALSE;
+    }
 }
 
 function gestiondenuncias_form_comment_asignacion_entidad_form_alter(&$form, $form_state, $form_id){

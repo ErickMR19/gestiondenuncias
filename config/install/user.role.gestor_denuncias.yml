@@ -11,3 +11,5 @@ is_admin: null
 permissions:
   - 'manejar denuncias'
   - 'edit own comments'
+  - 'edit any denuncia content'
+  - 'edit own denuncia content'
