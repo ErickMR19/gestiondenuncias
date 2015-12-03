@@ -65,7 +65,7 @@ function gestiondenuncias_node_view_alter(&$build, $entity, $display, $view_mode
         //optiene el usuario actual
         $user = \Drupal::currentUser();
         //solo permite agregar asignaciones si el usuario encargado es quien está logueado
-        if( !$build['field_usuario_encargado']['0'] || $user->id() != $build['field_usuario_encargado']['0']['#user']->id())
+        if( !$build['field_usuario_encargado']['0'] || $user->id() != $build['field_usuario_encargado']['0']['#account']->id())
         {
             $build['field_asignaciones']['0']['comment_form'] = NULL;
         }

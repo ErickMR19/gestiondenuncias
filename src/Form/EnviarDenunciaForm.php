@@ -44,11 +44,11 @@ public function validateEmailAjax(array &$form, FormStateInterface $form_state) 
   else{
       if ($serverResponse->verify_status) {
         $css = ['border' => '1px solid green'];
-        $message = $this->t('Email ok.');
+        $message = $this->t('Email válido');
       }
       else {
         $css = ['border' => '1px solid red'];
-        $message = $this->t('Email not valid.');
+        $message = $this->t('Email parece ser inválido');
       }
       $message = $message . $form_state->getValues()['denunciante']['email'];
       $response->addCommand(new CssCommand('#edit-email', $css));
@@ -142,10 +142,22 @@ public function validateEmailAjax(array &$form, FormStateInterface $form_state) 
       '#type' => 'managed_file',
       '#title' => 'Imágenes',
       '#multiple' => TRUE,
-      //'#theme' => 'file_widget_multiple',
+      '#theme' => 'file_widget_multiple',
       '#upload_location' => 'public://',
       '#upload_validators' => array(
         'file_validate_extensions' => array('gif png jpg jpeg'),
+        // Pass the maximum file size in bytes
+        'file_validate_size' => array(2*1024*1024),
+      )
+    );
+    $form['archivos'] = array(
+      '#type' => 'managed_file',
+      '#title' => 'Archivos',
+      '#multiple' => TRUE,
+      '#theme' => 'file_widget_multiple',
+      '#upload_location' => 'public://',
+      '#upload_validators' => array(
+        'file_validate_extensions' => array('pdf doc docx mp3 mp4 csv'),
         // Pass the maximum file size in bytes
         'file_validate_size' => array(2*1024*1024),
       )
@@ -205,8 +217,12 @@ public function validateEmailAjax(array &$form, FormStateInterface $form_state) 
             $form_state->setErrorByName('captcha-info', 'Fallo en el captcha');
         }
     }
-    if (count($form_state->getValues()['imagenes']) > 2) {
-        $form_state->setErrorByName('error-hidd', 'Solo se permiten dos imagenes');
+    if (count($form_state->getValues()['imagenes']) > 5) {
+        $form_state->setErrorByName('error-hidd', 'El número máximo de imágenes permitidas es 5');
+    }
+
+    if (count($form_state->getValues()['archivos']) > 5) {
+        $form_state->setErrorByName('error-hidd', 'El número máximo de archivos permitidos es 5');
     }
       //unset($form_state->getValues()['imagenes']);
 
@@ -229,7 +245,7 @@ public function validateEmailAjax(array &$form, FormStateInterface $form_state) 
       }
       $denunciante = $form_state->getValues('denunciante');
       $imagenes = array_map(function ($n){ return array('target_id'=>$n); }, $valores['imagenes']);
-
+      $archivos = array_map(function ($n){ return array('target_id'=>$n); }, $valores['archivos']);
       $terminos = \Drupal::entityManager()->getStorage('taxonomy_term')->loadTree('tipos_denuncia',0,NULL,true);
       $terminosAsociados = array();
       foreach ($terminos as $termino)
@@ -243,7 +259,8 @@ public function validateEmailAjax(array &$form, FormStateInterface $form_state) 
     $node = Node::create([
       'type'  => 'denuncia',
       'title' => $titulo,
-      'field_image' => $imagenes,
+      'field_imagen' => $imagenes,
+      'field_file' => $archivos,
       'field_tipo_denuncia' => $CodigoTipoDeDenuncia,
       'field_descripcion' => $valores['descripcion'],
       'field_denunciante_nombre' => $denunciante['nombre'],

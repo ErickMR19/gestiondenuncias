@@ -54,7 +54,7 @@ content:
     settings: {  }
     third_party_settings: {  }
   field_file:
-    type: file_url_plain
+    type: file_table
     weight: 3
     label: above
     settings: {  }
@@ -68,12 +68,10 @@ content:
     third_party_settings: {  }
     type: image
   field_usuario_encargado:
-    type: entity_reference_entity_view
+    type: author
     weight: 0
     label: above
-    settings:
-      view_mode: default
-      link: false
+    settings: {  }
     third_party_settings: {  }
 hidden:
   field_denuncia_archivada: true
