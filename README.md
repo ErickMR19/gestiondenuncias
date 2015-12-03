@@ -4,12 +4,17 @@
 
 * Tipo de contenido *Denuncia*
 * Tipo de comentario *Asignacion entidad*
-* Nuevos permisos que se utilizaran dentro de la API REST
+* Nuevos permisos referentes al manejo de denuncias
 * Roles preconfigurados con los nuevos permisos
    * Gestor de denuncias
    * Supervisor de gestores
    * Denuncias especiales
-* Provee una API REST (En progreso)
+* Vistas para los supervisores y gestores
+* Notificación por correo electrónico para supervisores, gestores y denunciantes
+* Formulario para el envío de denuncias
+
+## Elementos previstos para el futuro
+* Proveer una API REST
 
 ## Instalación
 Para instalar se debe descargar el contenido del repositorio, o hacer un clone, dentro de la carpeta *modules*. Es recomendable por motivos de orden, crear una carpeta *custom* dentro de *modules* y colocar el modulo ahí.
