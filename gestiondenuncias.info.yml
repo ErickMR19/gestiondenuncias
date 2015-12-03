@@ -3,7 +3,7 @@ type: module
 description: Creado para la apliacion de la Asamblea
 configure: gestiondenuncias.configuration_form
 core: 8.x
-version: 0.8-alpha4
+version: 0.8-alpha5
 package: Custom
 dependencies:
   - rest
