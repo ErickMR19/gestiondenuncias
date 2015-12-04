@@ -55,12 +55,7 @@ function gestiondenuncias_theme($existing, $type, $theme, $path) {
   return $theme;
 }
 
-function gestiondenuncias_form_alter(&$form, $form_state, $form_id){
-    //kint($form_id);
-    //kint($form);
-}
-
-function gestiondenuncias_node_view_alter(&$build, $entity, $display, $view_mode){
+function gestiondenuncias_node_view_alter( &$build, $entity, $display ){
     if($entity->bundle() === 'denuncia'){
         //optiene el usuario actual
         $user = \Drupal::currentUser();
@@ -68,6 +63,23 @@ function gestiondenuncias_node_view_alter(&$build, $entity, $display, $view_mode
         if( !$build['field_usuario_encargado']['0'] || $user->id() != $build['field_usuario_encargado']['0']['#account']->id())
         {
             $build['field_asignaciones']['0']['comment_form'] = NULL;
+        }
+    }
+}
+
+function gestiondenuncias_comment_links_alter(array &$links, $entity, array &$context){
+    if($entity->bundle() === 'asignacion_entidad'){
+        //optiene el usuario actual
+        $user = \Drupal::currentUser();
+        // si el usuario es anónimo descarta todos los enlaces
+        if( $user->isAnonymous() )
+        {
+            $links['comment'] = NULL;
+        }
+        else // si es un usuario esta autenticado, no debe mostrarse el enlace de responder
+        {
+            $links['comment']['#links']['comment-reply'] = NULL;
+            unset($links['comment']['#links']['comment-reply']);
         }
     }
 }
