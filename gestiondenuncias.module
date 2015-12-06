@@ -55,15 +55,9 @@ function gestiondenuncias_theme($existing, $type, $theme, $path) {
   return $theme;
 }
 
-function gestiondenuncias_node_view_alter( &$build, $entity, $display ){
+function gestiondenuncias_node_view( &$build, $entity, $display, $view_mode){
     if($entity->bundle() === 'denuncia'){
-        //optiene el usuario actual
-        $user = \Drupal::currentUser();
-        //solo permite agregar asignaciones si el usuario encargado es quien está logueado
-        if( !$build['field_usuario_encargado']['0'] || $user->id() != $build['field_usuario_encargado']['0']['#account']->id())
-        {
-            $build['field_asignaciones']['0']['comment_form'] = NULL;
-        }
+
     }
 }
 
@@ -122,12 +116,26 @@ function gestiondenuncias_comment_insert(Drupal\Core\Entity\EntityInterface $ent
 function gestiondenuncias_node_update(Drupal\Core\Entity\EntityInterface $entity) {
     if($entity->bundle() === 'denuncia')
     {
-            kint("Actualización denuncia");
-            /*
-             * TODO: - Enviar correo al denunciante informando de los cambios
-             *       - ! Poner como autor de los comentarios que hayan al nuevo gestor
-             *       - Enviar correo al gestor para notificar su nueva asignacion
-             */
+            $notificar = $entity->get('field_notificaractualizacion')->getValue()[0]['target_id'];
+            kint($notificar);
+            kint($entity);
+            $nuevoUsuarioEncargado = $entity->get('field_usuario_encargado')->getValue()[0]['target_id'];
+            if(!$nuevoUsuarioEncargado) $nuevoUsuarioEncargado = 0;
+            kint($nuevoUsuarioEncargado);
+            $id = $entity->id();
+            kint($id);
+            $nIDsComments = \Drupal::entityQuery('comment')
+                    ->condition('comment_type', 'asignacion_entidad')
+                    ->condition('entity_id', $id)
+                    ->execute();
+            kint($nIDsComments);
+            $comentarios = \Drupal::entityManager()->getStorage('comment')->loadMultiple($nIDsComments);
+            kint($comentarios);
+            foreach ($comentarios as $comentario) {
+                $comentario->setOwnerId($nuevoUsuarioEncargado)->set('field_notificaractualizacion','0',false)->save();
+            }
+            //exit;
+            kint("ADios");
             exit;
     }
 }
@@ -135,10 +143,21 @@ function gestiondenuncias_node_update(Drupal\Core\Entity\EntityInterface $entity
 function gestiondenuncias_comment_update(Drupal\Core\Entity\EntityInterface $entity) {
     if($entity->bundle() === 'asignacion_entidad')
     {
-            kint("Actualización comentario");
+            $notificar = $entity->get('field_notificaractualizacion')->getValue()[0]['value'];
+            if($notificar == '1')
+            {
+                kint("Actualización comentario. requiere notificar ");
+                kint($entity->getCommentedEntity()->get('field_denunciante_email')->value);
+            }
+            else
+            {
+                kint("Actualización comentario. NO requiere notificar ");
+            }
+
             /*
              * TODO: Enviar correo al denunciante informando de los cambios
              */
+             kint("comment_update /end");
             exit;
     }
 }
@@ -146,7 +165,32 @@ function gestiondenuncias_comment_update(Drupal\Core\Entity\EntityInterface $ent
 function gestiondenuncias_cron(){
     $now = new DrupalDateTime();
     $text = $now->format('z');
-    \Drupal::logger('gestiondenuncias.cron')->debug("Se ejecutó un cron :P $text");
+
+    \Drupal::logger('gestiondenuncias.cron')->debug("Se va a ejecutar un cron :P $text");
+    $idComments=    \Drupal::entityQueryAggregate('comment')
+                    ->condition('comment_type', 'asignacion_entidad')
+                    ->notExists('field_fecha_respuesta')
+                    ->groupBy('entity_id')
+                    ->execute();
+
+    $ids = array_map(function ($n){ return $n['entity_id']; }, $idComments);
+
+    $denuncias = \Drupal::entityManager()
+                    ->getStorage('node')
+                    ->loadMultiple($ids);
+    $usersDenuncias = array();
+    foreach ($denuncias as $key => $denuncia) {
+        if($denuncia->get('field_usuario_encargado')->first()){
+            $uid = $denuncia->get('field_usuario_encargado')->first()->getValue()['target_id'];
+            $usersDenuncias[$uid][] = $denuncia->toLink(NULL, 'canonical',['absolute'=>TRUE] )->toString()->getGeneratedLink();
+        }
+    }
+    foreach ($usersDenuncias as $user => $links) {
+        $usersDenuncias[$user] = implode("<br />",$links);
+    }
+
+    notificacionSinRespuesta($usersDenuncias);
+    \Drupal::logger('gestiondenuncias.cron')->debug("Se ejecuto un cron P:");
 
 }
 
@@ -162,6 +206,8 @@ function gestiondenuncias_form_node_denuncia_edit_form_alter(&$form, $form_state
 }
 
 function gestiondenuncias_form_comment_asignacion_entidad_form_alter(&$form, $form_state, $form_id){
+    $idUser = \Drupal::currentUser()->id();
+    $usuarioEncargado = $form_state->getBuildInfo()['callback_object']->getEntity()->getCommentedEntity()->get('field_usuario_encargado')->getValue()[0]['target_id'];
     $form['#validate'][] = 'verificar_fechas';
     $form['subject']['widget']['#required'] = TRUE;
     $form['subject']['widget']['0']['#required'] = TRUE;
@@ -169,14 +215,23 @@ function gestiondenuncias_form_comment_asignacion_entidad_form_alter(&$form, $fo
     $form['subject']['widget']['#title'] = t('Entidad Encargada');
     $form['subject']['widget']['0']['value']['#required'] = TRUE;
     $form['subject']['widget']['0']['value']['#title'] = t('Entidad Encargada');
-    if( ! isset( $form['subject']['widget']['0']['value']['#default_value'] ) ){ // edicion de comment
+    //$form['field_notificaractualizacion']['widget']['value' ]['#states'] = array( 'invisible' => TRUE);
+    $form['field_notificaractualizacion']['widget']['0']['value']['#type'] = 'hidden';
+    if( ! $usuarioEncargado || $idUser != $usuarioEncargado )
+    {
+        $form = NULL;
+    }
+    else if( ! isset( $form['subject']['widget']['0']['value']['#default_value'] ) ){ // edicion de comment
         $form['field_fecha_respuesta'] = NULL;
     }
 }
 
 function verificar_fechas($form, &$form_state) {
+    $form_state->setValueForElement($form['field_notificaractualizacion']['widget']['0'], array('value' => "0"));
 
     $values = $form_state->getValues();
+
+
     $now = new DrupalDateTime();
     $fecha_esperada = $values['field_fecha_esperada'][0]['value'];
 
@@ -190,7 +245,31 @@ function verificar_fechas($form, &$form_state) {
     if( $fecha_esperada <= $now ){
         $form_state->setErrorByName('field_fecha_esperada', 'La fecha esperada debe ser posterior al día actual');
     }
-
+    if( $form['field_fecha_respuesta'] && ! $form_state->hasAnyErrors() ){
+        $cambios = false;
+        kint($a = $form['field_comentarios']['widget'][0]['value']['#default_value']);
+        kint($b = $values['field_comentarios'][0]['value']);
+        kint($a == $b);
+        $cambios = $cambios | $a != $b;
+        kint($a = $form['field_fecha_esperada']['widget'][0]['value']['#default_value']->format('d-m-y'));
+        kint($b = $values['field_fecha_esperada'][0]['value']->format('d-m-y'));
+        kint($a == $b);
+        $cambios = $cambios | $a != $b;
+        $a = ( $form['field_fecha_respuesta']['widget'][0]['value']['#default_value'] ) ? $form['field_fecha_respuesta']['widget'][0]['value']['#default_value']->format('d-m-y') : NULL ;
+        kint($a);
+        kint($b = $values['field_fecha_respuesta'][0]['value']->format('d-m-y'));
+        kint($a == $b);
+        $cambios = $cambios | $a != $b;
+        kint($a = $form['field_file']['widget'][0]['#default_value']['fids']);
+        kint($b = $values['field_file'][0]['fids']);
+        kint($a == $b);
+        $cambios = $cambios | $a != $b;
+        kint("se realizaron cambios: $cambios");
+        if($cambios){
+            $form_state->setValueForElement($form['field_notificaractualizacion']['widget']['0'], array('value' => "1"));
+        }
+    }
+    kint("== verificar_fechas /end");
 }
 
 // Notifica a todos los supervisores cuando se agrega una nueva denuncia
@@ -253,7 +332,22 @@ function notificarDenunciante($to, $key, $params){
 	\Drupal::logger('gestiondenuncias')->notice($message);
 }
 
-
+// Notifica a los gestores que no recibieron respuesta
+function notificacionSinRespuesta($data){
+    \Drupal::logger('gestiondenuncias.cron.notificacionSinRespuesta')->debug("Inicio Funcion");
+    $mailManager = \Drupal::service('plugin.manager.mail');
+	$module = 'gestiondenuncias';
+	$key = 'sin_respuesta_denuncia';
+	$langcode = \Drupal::currentUser()->getPreferredLangcode();
+	$send = true;
+    $users = \Drupal::entityManager()->getStorage('user')->loadMultiple(array_keys($data));
+    foreach ($data as $usuario => $denuncias) {
+        $to = $users[$usuario]->get('mail')->value;
+        $params['message'] = "Se esperaba respuesta en:<br /> $denuncias";
+        $mailManager->mail($module, $key, $to, $langcode, $params, NULL, $send); // Envia el correo
+    }
+    \Drupal::logger('gestiondenuncias.cron.notificacionSinRespuesta')->debug("Fin Funcion");
+}
 
 
 /**
@@ -299,6 +393,11 @@ function gestiondenuncias_mail($key, &$message, $params) {
 
 		case 'cambio_comentario_denuncia':
 			$message['subject'] = t('Se realizo un cambio en la gestión de una denuncia');
+			$message['body'][] = SafeMarkup::checkPlain($params['message']);
+			break;
+
+		case 'sin_respuesta_denuncia':
+			$message['subject'] = t('No se recibio respuesta en alguna denuncia');
 			$message['body'][] = SafeMarkup::checkPlain($params['message']);
 			break;
 	}

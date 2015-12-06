@@ -1,0 +1,20 @@
+langcode: es
+status: true
+dependencies:
+  module:
+    - comment
+  enforced:
+    module:
+      - gestiondenuncias
+id: comment.field_notificaractualizacion
+field_name: field_notificaractualizacion
+entity_type: comment
+type: boolean
+settings: {  }
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

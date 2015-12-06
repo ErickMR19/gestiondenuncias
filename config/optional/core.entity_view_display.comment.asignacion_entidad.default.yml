@@ -1,3 +1,4 @@
+uuid: cab59260-9bc7-43a2-9808-8a3e8e1ccd2e
 langcode: es
 status: true
 dependencies:
@@ -7,6 +8,7 @@ dependencies:
     - field.field.comment.asignacion_entidad.field_fecha_esperada
     - field.field.comment.asignacion_entidad.field_fecha_respuesta
     - field.field.comment.asignacion_entidad.field_file
+    - field.field.comment.asignacion_entidad.field_notificaractualizacion
   module:
     - datetime
     - file
@@ -25,25 +27,23 @@ content:
     settings: {  }
     third_party_settings: {  }
   field_fecha_esperada:
-    type: datetime_time_ago
+    type: datetime_custom
     weight: 1
     label: above
     settings:
-      future_format: '@interval hence'
-      past_format: '@interval ago'
-      granularity: 2
+      timezone_override: ''
+      date_format: d/m/Y
     third_party_settings: {  }
   field_fecha_respuesta:
-    type: datetime_time_ago
+    type: datetime_custom
     weight: 0
     label: above
     settings:
-      future_format: '@interval hence'
-      past_format: '@interval ago'
-      granularity: 2
+      timezone_override: ''
+      date_format: d/m/Y
     third_party_settings: {  }
   field_file:
-    type: file_url_plain
+    type: file_table
     weight: 3
     label: above
     settings: {  }
@@ -53,4 +53,5 @@ content:
     settings: {  }
     third_party_settings: {  }
 hidden:
+  field_notificaractualizacion: true
   langcode: true

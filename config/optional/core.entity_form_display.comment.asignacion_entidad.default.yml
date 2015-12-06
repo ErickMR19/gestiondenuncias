@@ -7,6 +7,7 @@ dependencies:
     - field.field.comment.asignacion_entidad.field_fecha_esperada
     - field.field.comment.asignacion_entidad.field_fecha_respuesta
     - field.field.comment.asignacion_entidad.field_file
+    - field.field.comment.asignacion_entidad.field_notificaractualizacion
   module:
     - datetime
     - file
@@ -50,4 +51,5 @@ content:
     third_party_settings: {  }
 hidden:
   author: true
+  field_notificaractualizacion: true
   langcode: true

@@ -10,6 +10,7 @@ dependencies:
     - field.field.node.denuncia.field_descripcion
     - field.field.node.denuncia.field_file
     - field.field.node.denuncia.field_imagen
+    - field.field.node.denuncia.field_notificaractualizacion
     - field.field.node.denuncia.field_tipo_denuncia
     - field.field.node.denuncia.field_usuario_encargado
     - node.type.denuncia
@@ -44,6 +45,7 @@ hidden:
   field_descripcion: true
   field_file: true
   field_imagen: true
+  field_notificaractualizacion: true
   field_tipo_denuncia: true
   langcode: true
   path: true
