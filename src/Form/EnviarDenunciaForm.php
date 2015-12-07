@@ -224,11 +224,18 @@ public function validateEmailAjax(array &$form, FormStateInterface $form_state) 
     if (count($form_state->getValues()['archivos']) > 5) {
         $form_state->setErrorByName('error-hidd', 'El número máximo de archivos permitidos es 5');
     }
-      //unset($form_state->getValues()['imagenes']);
-
-          /**
-            * TODO: verficiar permisos y el tipo de denuncia
-            **/
+    $valores = $form_state->getValues();
+    if( $user->isAnonymous() ){
+        $tipoDenuncia = ( $valores['tipo_denuncia_bool'] ) ? 'Anónima' : 'Personal' ;
+    }
+    else {
+       $tipoDenuncia = $valores['tipo_denuncia_m'];
+    }
+    if( $tipoDenuncia != 'Anónima'){
+        $denunciante = $form_state->getValues('denunciante');
+        if(! $denunciante['nombre']) $form_state->setErrorByName('nombre', 'El nombre es obligatorio');;
+        if(! $denunciante['apellidos']) $form_state->setErrorByName('apellidos', 'El apellido es obligatorio');;
+    }
   }
 
   /**

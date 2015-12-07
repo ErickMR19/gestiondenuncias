@@ -1,2 +1,9 @@
 validar_email: 0
 verificar_via_recaptcha: 0
+nombre_ususario_verifyemail: ''
+private_key_recaptcha: ''
+public_key_recaptcha: ''
+entorno_prueba_recaptcha: 0
+enviar_email_supervisores: 1
+fecha_prueba_cron: '2015-04-19'
+usar_fecha_prueba_cron: 0

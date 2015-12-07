@@ -130,6 +130,24 @@ class ConfigurationForm extends ConfigFormBase {
       '#default_value' => $config->get('enviar_email_supervisores'),
     );
 
+    $form['usar-fecha-prueba-cron'] = array(
+      '#type' => 'checkbox',
+      '#title' => $this->t('Usar fecha de pruebas para CRON'),
+      '#default_value' => $config->get('usar_fecha_prueba_cron'),
+    );
+
+    $form['fecha-prueba-cron'] = array(
+      '#type' => 'date',
+      '#title' => $this->t('Fecha de pruebas'),
+      '#description' => $this->t('Se tomara esta fecha como actual para compararla con la fecha esperada'),
+      '#default_value' => $config->get('fecha_prueba_cron'),
+      '#states' => array(
+          // Hide the settings when the cancel notify checkbox is disabled.
+          'disabled' => array(
+              ':input[name="usar-fecha-prueba-cron"]' => array('checked' => FALSE),
+          ),
+      )
+    );
 
 
     return parent::buildForm($form, $form_state);
@@ -140,6 +158,8 @@ class ConfigurationForm extends ConfigFormBase {
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     parent::validateForm($form, $form_state);
+    if( $form_state->getValue('usar-fecha-prueba-cron') && ! $form_state->getValue('fecha-prueba-cron') )
+        $form_state->setErrorByName('fecha-prueba-cron', "Se requiere una fecha si se activa la opcion de prueba para CRON");
   }
 
   /**
@@ -158,6 +178,8 @@ class ConfigurationForm extends ConfigFormBase {
       ->set('public_key_recaptcha', $form_state->getValues('datos-recaptcha')['public_key_recaptcha'])
       ->set('entorno_prueba_recaptcha', $form_state->getValues('datos-recaptcha')['entorno_prueba_recaptcha'])
       ->set('enviar_email_supervisores', $form_state->getValue('enviar-email-supervisores'))
+      ->set('fecha_prueba_cron', $form_state->getValue('fecha-prueba-cron'))
+      ->set('usar_fecha_prueba_cron', $form_state->getValue('usar-fecha-prueba-cron'))
       ->save();
 
       drupal_set_message("Es recomendable Vaciar todas las cachés");
