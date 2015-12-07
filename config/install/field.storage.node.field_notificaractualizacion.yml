@@ -9,8 +9,11 @@ dependencies:
 id: node.field_notificaractualizacion
 field_name: field_notificaractualizacion
 entity_type: node
-type: boolean
-settings: {  }
+type: string
+settings:
+  max_length: 1
+  is_ascii: false
+  case_sensitive: false
 module: core
 locked: false
 cardinality: 1

@@ -36,6 +36,13 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
+  field_notificaractualizacion:
+    weight: 2
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
 hidden:
   created: true
   field_asignaciones: true
@@ -45,7 +52,6 @@ hidden:
   field_descripcion: true
   field_file: true
   field_imagen: true
-  field_notificaractualizacion: true
   field_tipo_denuncia: true
   langcode: true
   path: true

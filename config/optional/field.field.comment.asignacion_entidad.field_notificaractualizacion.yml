@@ -14,9 +14,7 @@ required: false
 translatable: false
 default_value:
   -
-    value: 0
+    value: '0'
 default_value_callback: ''
-settings:
-  on_label: Activado
-  off_label: Desactivado
-field_type: boolean
+settings: {  }
+field_type: string

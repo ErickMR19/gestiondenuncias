@@ -42,6 +42,13 @@ content:
     settings:
       progress_indicator: throbber
     third_party_settings: {  }
+  field_notificaractualizacion:
+    weight: 5
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
   subject:
     type: string_textfield
     weight: 0
@@ -51,5 +58,4 @@ content:
     third_party_settings: {  }
 hidden:
   author: true
-  field_notificaractualizacion: true
   langcode: true
